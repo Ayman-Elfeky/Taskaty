@@ -46,8 +46,8 @@ module.exports.getTask = async (req, res) => {
 
 module.exports.createTask = async (req, res) => {
     const userID = req.user.id;
-    const { title, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern } = req.body;
-    const name = title;
+    const { name, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern } = req.body;
+    
     try {
         const existingTask = await Task.findOne({ name, project });
         if (existingTask) {
@@ -76,21 +76,29 @@ module.exports.createTask = async (req, res) => {
 };
 
 module.exports.updateTask = async (req, res) => {
-    const taskID = req.params.taskID;
-    const { name, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern } = req.body;
-    try {
-        const task = await Task.findByIdAndUpdate(taskID, { name, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern }, { new: true });
-        if (!task) {
-            return res.status(404).json({ message: 'Task not found' });
-        }
+    const { taskID } = req.params;
+    const updateFields = req.body;
 
-        await Project.findByIdAndUpdate(project, { $addToSet: { tasks: task._id } }, { new: true });
+    try {
+        const task = await Task.findByIdAndUpdate(taskID, updateFields, { new: true })
+            .populate('project', '_id name description status dueDate leader teamMembers')
+            .populate('createdBy', '_id name email');
+
+        if (!task) return res.status(404).json({ message: 'Task not found' });
+
+        if (updateFields.project) {
+            await Project.findByIdAndUpdate(updateFields.project, {
+                $addToSet: { tasks: task._id }
+            });
+        }
 
         res.status(200).json(task);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+
 
 module.exports.getTasksByProject = async (req, res) => {
     const projectID = req.params.projectID;

@@ -143,14 +143,16 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         const newTasks = { ...state.tasks };
         const task = newTasks[sourceStatus].find(t => t._id === taskId);
         if (!task) return state;
+        console.log('Moving task:', task);
 
         // Remove from source
         newTasks[sourceStatus] = newTasks[sourceStatus].filter(t => t._id !== taskId);
 
         // Add to destination with updated status
-        const updatedTask = { 
-          ...task, 
-          status: statusMap[destinationStatus]
+        const updatedTask = {
+          ...task,
+          status: statusMap[destinationStatus],
+          project: task.project ?? null  // 👈 explicitly preserve project
         };
         newTasks[destinationStatus].splice(index, 0, updatedTask);
 

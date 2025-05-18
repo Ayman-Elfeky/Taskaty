@@ -17,7 +17,7 @@ export const taskService = {
   },
 
   // Create new task
-  createTask: async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+  createTask: async (taskData: Omit<Task, "_id" | "createdAt" | "updatedAt">) => {
     const response = await api.post('/task', taskData);
     console.log('Response from createTask from taskService: ', response)
     return response.data;
