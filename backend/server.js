@@ -21,9 +21,7 @@ const connectDB = require('./config/db');
 const app = express();
 
 // Configure allowed origins
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:8080', 'http://localhost:5173', 'https://app8080.maayn.me'];
+const allowedOrigins = ['http://localhost:8080', 'http://localhost:5173', 'https://app8080.maayn.me'];
 
 // Configure CORS
 app.use(cors({
