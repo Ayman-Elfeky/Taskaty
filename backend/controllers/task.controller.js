@@ -46,8 +46,8 @@ module.exports.getTask = async (req, res) => {
 
 module.exports.createTask = async (req, res) => {
     const userID = req.user.id;
-    const { title, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern } = req.body;
-    const name = title;
+    const { name, description, status, dueDate, project, assignedTo, progress, isRecurring, recurrencePattern } = req.body;
+    
     try {
         const existingTask = await Task.findOne({ name, project });
         if (existingTask) {
