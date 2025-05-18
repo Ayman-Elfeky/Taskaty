@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Sidebar } from "@/components/Sidebar";
 import LoadingSpinner from '@/components/loadingSpinner';
@@ -20,6 +20,11 @@ const LandingPage = lazy(() => import("./pages/landPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const VerifyEmail = lazy(() => import("./pages/verifyEmail"));
 
+// Preload function
+const preloadComponent = (importFn: () => Promise<any>) => {
+  importFn().catch(error => console.error('Error preloading component:', error));
+};
+
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -27,6 +32,23 @@ const AppContent = () => {
   const isLandingPage = location.pathname === "/";
   const isAuthPage = location.pathname === "/auth";
   const isVerifyPage = location.pathname === "/verify-email";
+
+  // Preload components after initial render
+  useEffect(() => {
+    // Small delay to ensure main page loads first
+    const timer = setTimeout(() => {
+      preloadComponent(() => import("./pages/Home"));
+      preloadComponent(() => import("./pages/MyTasks"));
+      preloadComponent(() => import("./pages/Projects"));
+      preloadComponent(() => import("./pages/messages"));
+      preloadComponent(() => import("./pages/Settings"));
+      preloadComponent(() => import("./pages/NotFound"));
+      preloadComponent(() => import("./pages/Auth"));
+      preloadComponent(() => import("./pages/verifyEmail"));
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
